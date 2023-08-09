@@ -1,0 +1,1 @@
+export const baseIp = "http://192.168.18.14:8080"

@@ -3,7 +3,7 @@ import { Formik, Field, ErrorMessage } from 'formik';
 import * as yup from 'yup';
 import mainImage from '../assets/mainImage.jpg';
 import { useNavigate } from 'react-router-dom';
-import { Form, Container, Row, Col, Button } from 'react-bootstrap';
+import { Form, Container, Row, Col, Button, Spinner } from 'react-bootstrap';
 import { baseIp } from '../config/conection';
 
 interface FormData {
@@ -39,6 +39,10 @@ export const LoginView = () => {
           setCargando(false);
           return navigate('/home', { state: { data: data.data } });
         }
+      })
+      .catch(err =>{
+        console.log(err);
+        setCargando(false);
       })
       .finally(() => resetForm());
   };
@@ -98,9 +102,10 @@ export const LoginView = () => {
               </Formik>
             </>
           ) : (
-            <div>
-              <p>Iniciando Sesión</p>
-            </div>
+            <Col style={{height:'50vh'}} className='d-flex flex-column align-items-center justify-content-center'>
+              <p style={{fontSize:25}}>Iniciando Sesión</p>
+              <Spinner variant='primary'/>
+            </Col>
           )}
         </Col>
       </Row>

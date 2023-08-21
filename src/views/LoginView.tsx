@@ -40,6 +40,10 @@ export const LoginView = () => {
           return navigate('/home', { state: { data: data.data } });
         }
       })
+      .catch(err =>{
+        console.log(err);
+        setCargando(false);
+      })
       .finally(() => resetForm());
   };
 
@@ -98,12 +102,9 @@ export const LoginView = () => {
               </Formik>
             </>
           ) : (
-            <Row>
-              <Col className=' d-flex flex-column justify-content-center align-items-center'>
-                <p>Iniciando Sesión</p>
-                <Spinner animation="border" variant="primary" />
-              </Col>
-            </Row>
+            <div>
+              <p>Iniciando Sesión</p>
+            </div>
           )}
         </Col>
       </Row>

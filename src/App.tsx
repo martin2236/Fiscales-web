@@ -11,7 +11,7 @@ function App() {
       <Routes>
         <Route path="/" element={<LoginView />} />
         <Route path="/home" element={<HomeView />} />
-        <Route path="/edit" element={<EditFiscal />} />
+        <Route path="/edit" element={<EditFiscal/>} />
       </Routes>
     </BrowserRouter>
   )

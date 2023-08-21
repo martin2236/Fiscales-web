@@ -6,6 +6,8 @@ import Form from 'react-bootstrap/Form';
 import { baseIp } from '../config/conection';
 import { User } from './HomeView';
 import { Row,Col,Container } from 'react-bootstrap';
+import { CustomAlert } from '../components/CustomAlert';
+import Alert from 'react-bootstrap/Alert';
 
 interface Props {
   user: User;
@@ -34,6 +36,7 @@ let validationSchema = yup.object({
 });
 
 export const RegisterView = ({ user }: Props) => {
+
   const initialValues = {
     nombre: '',
     apellido: '',
@@ -45,6 +48,23 @@ export const RegisterView = ({ user }: Props) => {
     mesa: 0,
   };
   const [isMobileView, setIsMobileView] = useState(false);
+  const [alerta,setAlerta] = useState({
+    show:false,
+    variant:'',
+    msg:''
+  })
+
+  useEffect(()=>{
+    if(alerta.variant != ''){
+        setTimeout(() => {
+            setAlerta({
+                show:false,
+                variant:'',
+                msg:''
+            })
+        }, 2000);
+    }
+  },[alerta])
 
     useEffect(() => {
         const handleResize = () => {
@@ -60,7 +80,7 @@ export const RegisterView = ({ user }: Props) => {
       }, []);
 
   const onSubmit = (values: formData, { resetForm }: any) => {
-    fetch(`${baseIp}/fiscales/create`, {
+    fetch(`${baseIp}/fiscales/crear`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -70,11 +90,23 @@ export const RegisterView = ({ user }: Props) => {
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log(data);
+        if( data && data.success ){
+            setAlerta({
+            show:true,
+            variant:'success',
+            msg:data.msg
+        })
+        return resetForm();
+        }
+        setAlerta({
+            show:true,
+            variant:'danger',
+            msg:data.msg
+        })
       })
-      .catch((error) => console.log(error));
+      .catch((error) => console.log('ocurrio un error',error));
 
-    resetForm();
+    
   };
 
   const formik = useFormik({
@@ -85,6 +117,7 @@ export const RegisterView = ({ user }: Props) => {
 
   return (
     <Container style={{height:'80vh'}} fluid className='bg-primary'>
+        
       <Row
         style={{
           display: 'flex',
@@ -95,6 +128,7 @@ export const RegisterView = ({ user }: Props) => {
         }}
       >
         <Col className='mt-1 col-lg-6 col-md-8 col-xs-11' style={{overflowX:'auto', maxHeight:isMobileView ? '700px' : '450px',  backgroundColor: '#FFF' }}>
+            <CustomAlert alerta={alerta}/>
           <h4 style={{textAlign:'center',marginTop:20, fontSize: '20px', fontWeight: 'bold', marginBottom: '1rem' }}>Formulario de registro</h4>
 
           <Form style={{width: '100%', display: 'flex',flexDirection:'column', justifyContent:'center', alignItems:'center' }} onSubmit={formik.handleSubmit}>

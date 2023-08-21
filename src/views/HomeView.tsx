@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Navbar from 'react-bootstrap/Navbar';
 import Container from 'react-bootstrap/Container';
-import Nav from 'react-bootstrap/Nav';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import { useLocation } from 'react-router-dom';
@@ -79,10 +78,6 @@ export const HomeView = () => {
       <Navbar bg="primary" variant="dark">
         <Container>
           <Navbar.Brand>Sistema de gestión de Fiscales</Navbar.Brand>
-          {/*<Nav className="ml-auto">
-            <Nav.Link>Perfil</Nav.Link>
-            <Nav.Link>Cerrar Sesión</Nav.Link>
-          </Nav>*/}
         </Container>
       </Navbar>
 

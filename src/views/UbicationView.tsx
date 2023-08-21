@@ -160,7 +160,7 @@ export const UbicationView = ({user,coords}:Props) => {
         <div style={{width:'100%',marginTop:5,marginBottom:15}}>
             <div style={{ marginBottom: 2, marginTop: 2, width: '100%' }}>
             <Form.Label style={{textAlign:'center',width:'100%',color:'#fff', fontWeight:'bold'}}>Seleccione un filtro</Form.Label>
-            <Form.Select value={filtro} defaultValue={filtro} onChange={handleChange}>
+            <Form.Select defaultValue={filtro} onChange={handleChange}>
               <option value={'nombre'}>Nombre</option>
               <option value={'dni'}>D.N.I.</option>
               <option value={'localidad'}>Localidad</option>
@@ -226,41 +226,41 @@ export const UbicationView = ({user,coords}:Props) => {
           {/* Map Container */}
             <Row style={{ height: '75vh'}}>
                 <Col className='col-12 col-lg-8'>
-                    {
-                    coords.lat != 0 ? 
-                    <MapContainer center={[coords.lat, coords.lon]} zoom={13} >
-                        <TileLayer
-                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                        />
-                        {
-                            listaCoordenadas.map( (item:Fiscal) => {
-                                if(item.coordenadas.length){
-                                    let algo = item.coordenadas.length + 1
-                                    let ultimoValor = item.coordenadas.pop();
-                                    let fechaString = JSON.stringify(ultimoValor!.createdAt);
-                                    let partes = fechaString.split("T");
-                                    let horaString = partes[1].split(".")[0];
-                                    return(
-                                        <Marker key={item.id} position={[ultimoValor!.latitud, ultimoValor!.longitud]}>
-                                            <Popup>
-                                                fiscal:{item.nombre} {item.apellido}<br/>
-                                                cantidad de registros: {algo}<br/>
-                                                ultimo registro: {horaString}
-                                            </Popup>
-                                        </Marker>
-                                    )
-                                }
-                            })
+                {
+            coords.lat != 0 ? 
+            <MapContainer center={[coords.lat, coords.lon]} zoom={13} style={{ height: '75vh' }}>
+                <TileLayer
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                {
+                    listaCoordenadas.map( (item:Fiscal) => {
+                        if(item.coordenadas.length){
+                            let algo = item.coordenadas.length + 1
+                            let ultimoValor = item.coordenadas.pop();
+                            let fechaString = JSON.stringify(ultimoValor!.createdAt);
+                            let partes = fechaString.split("T");
+                            let horaString = partes[1].split(".")[0];
+                            return(
+                                <Marker key={item.id} position={[ultimoValor!.latitud, ultimoValor!.longitud]}>
+                                    <Popup>
+                                        fiscal:{item.nombre} {item.apellido}<br/>
+                                        cantidad de registros: {algo}<br/>
+                                        ultimo registro: {horaString}
+                                    </Popup>
+                                </Marker>
+                            )
                         }
-                    </MapContainer>
-                    :
-                    <Col>
-                        <p style={{fontSize:20, fontWeight:'bold'}}>
-                            Buscando coordenadas
-                        </p>
-                    </Col>
-                    }
+                    })
+                }
+            </MapContainer>
+            :
+            <Col>
+                <p style={{fontSize:20, fontWeight:'bold'}}>
+                    Buscando coordenadas
+                </p>
+            </Col>
+        }
                 </Col>
                 <Col
                     className='col-12 col-lg-4 '

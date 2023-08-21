@@ -12,6 +12,7 @@ import Col from 'react-bootstrap/Col';
 import Container  from 'react-bootstrap/Container';
 import { UserRow } from '../components/ResponsiveRow';
 import lupa from '../assets/icons/lupa.png'
+import { useNavigate } from 'react-router-dom';
 
 interface Props {
   user: User;
@@ -19,9 +20,10 @@ interface Props {
 
 interface FormData {
   nombre: string;
+  apellido:'';
   dni: string;
   localidad: string;
-  parametro:string
+  parametro:string;
 }
 
 export const TableView = ({ user }: Props) => {
@@ -31,7 +33,7 @@ export const TableView = ({ user }: Props) => {
   const [shownUsers,setShownUsers] = useState(rows);
   const [screenHeight, setScreenHeight] = useState(window.innerHeight);  
   const [isMobileView, setIsMobileView] = useState(false);
-
+  const navigate = useNavigate();
     useEffect(() => {
         const handleResize = () => {
           setIsMobileView(window.innerWidth < 730); 
@@ -45,7 +47,7 @@ export const TableView = ({ user }: Props) => {
         };
       }, []);
       
-        const altura = screenHeight - 200;
+        const altura = screenHeight - 300;
         const updateScreenHeight = () => {
             setScreenHeight(window.innerHeight);
         };
@@ -59,48 +61,56 @@ export const TableView = ({ user }: Props) => {
   
 
   useEffect(() => {
-    if(user.session_token){ 
-    fetch(`${baseIp}/fiscales/`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `${user.session_token}`,
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        console.log(user.session_token);
-        setRows(data.data);
-        setShownUsers(data.data);
-      })
-      .catch((error) => console.log(error));
-    }else{
-        console.log('no se encontro el token')
-    }
+    pedirUsuarios()
   }, [user.session_token]);
 
+  const pedirUsuarios = () => {
+    if(user.session_token){ 
+        fetch(`${baseIp}/fiscales/`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `${user.session_token}`,
+          },
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            setRows(data.data);
+            const firstRows = data.data.slice(0, cant);
+            setShownUsers(firstRows);
+          })
+          .catch((error) => console.log(error));
+        }else{
+            console.log('no se encontro el token')
+        }
+  }
   const initialValues: FormData = {
     nombre: '',
+    apellido:'',
     dni: '',
     localidad: '',
     parametro:''
   };
+
  let validationSchema;
   const onSubmit = (values: FormData, { resetForm }: any) => {
     console.log(values);
-    const buscar: any = {};
-    const { nombre, dni, localidad } = values;
+    const { nombre,apellido, dni, localidad } = values;
+    let query;
     if (nombre !== '') {
-      buscar.filtro = 'nombre';
-      buscar.valor = nombre.replace(' ', '%20');
-    } else if (dni !== '') {
-      buscar.filtro = 'dni';
-      buscar.valor = dni;
-    } else if (localidad !== '') {
-      buscar.filtro = 'localidad';
-      buscar.valor = localidad;
+      query = `nombre?nombre=${nombre}`
+    }else if(apellido !== ''){
+        query = `nombre?apellido=${apellido}`
+    }else if(nombre !== '' && apellido !== ''){
+        query = `nombre?nombre=${nombre}&&apellido=${apellido}`
     }
-    fetch(`${baseIp}/fiscales/${buscar.filtro}/${buscar.valor}`, {
+    else if (dni !== '') {
+      query = `dni?dni=${dni}`
+    } else if (localidad !== '') {
+      query = `licalidad?localidad=${localidad}`
+    }
+    console.log(`${baseIp}/fiscales/${query}`)
+    fetch(`${baseIp}/fiscales/${query}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -119,11 +129,11 @@ export const TableView = ({ user }: Props) => {
   };
 
   switch (filtro) {
-    case 'nombre':
-      validationSchema = yup.object({
-        nombre: yup.string().required('Ingrese un nombre'),
-      });
-      break;
+    //case 'nombre':
+    //  validationSchema = yup.object({
+    //    nombre: yup.string().required('Ingrese un nombre'),
+    //  });
+    //  break;
     case 'dni':
       validationSchema = yup.object({
         dni: yup.string().required('Ingrese un dni'),
@@ -142,6 +152,10 @@ export const TableView = ({ user }: Props) => {
     setFiltro(event.target.value);
   };
 
+  const onEdit = (user:User) => {
+    return navigate('/edit', { state: { user } });
+  }
+
   const formik = useFormik({
     initialValues,
     onSubmit,
@@ -152,29 +166,39 @@ export const TableView = ({ user }: Props) => {
     <Container style={{height:isMobileView ? '100vh' : '80vh'}} fluid className='bg-primary d-flex flex-column justify-content-start'>
             {
         isMobileView ?
-        <div style={{width:'100%',marginTop:30}}>
-            <div style={{ marginBottom: 2, marginTop: 2, width: '100%' }}>
-            <Form.Label style={{textAlign:'center',width:'100%',color:'#fff', fontWeight:'bold'}}>Seleccione un filtro</Form.Label>
-            <Form.Select value={filtro} defaultValue={filtro} onChange={handleChange}>
-              <option value={'nombre'}>Nombre</option>
-              <option value={'dni'}>D.N.I.</option>
-              <option value={'localidad'}>Localidad</option>
-            </Form.Select>
-          </div>
+        <Col style={{width:'100%',marginTop:30}}>
+            <Col style={{ marginBottom: 2, marginTop: 2, width: '100%' }}>
+                <Form.Label style={{textAlign:'center',width:'100%',color:'#fff', fontWeight:'bold'}}>Seleccione un filtro</Form.Label>
+                <Form.Select  defaultValue={filtro} onChange={handleChange}>
+                <option value={'nombre'}>Nombre</option>
+                <option value={'dni'}>D.N.I.</option>
+                <option value={'localidad'}>Localidad</option>
+                </Form.Select>
+            </Col>
           <Form style={{ width: '100%' }} onSubmit={formik.handleSubmit}>
-          <div className='bg-white' style={{borderRadius:5 , marginTop:2, width: '100%', display:'flex', flexDirection:'row' }}>
+          <Col className='bg-white' style={{borderRadius:5 , marginTop:2, width: '100%', display:'flex', flexDirection:'row' }}>
             {filtro === 'nombre' && (
-                <div style={{display:'flex',flexDirection:'column',width:'100%'}}>
+                <Col style={{display:'flex',flexDirection:'row',width:'100%'}}>
                     <Form.Control
                     type="text"
                     name="nombre"
+                    className='rounded-left'
                     value={formik.values.nombre}
                     onChange={formik.handleChange}
                     isInvalid={formik.touched.nombre && !!formik.errors.nombre}
                     placeholder="Nombre del fiscal"
                     />
-                    <Form.Control.Feedback type="invalid">{formik.errors.nombre}</Form.Control.Feedback>
-                </div>
+                    <Form.Control
+                    className='rounded-right'
+                    type="text"
+                    name="apellido"
+                    value={formik.values.apellido}
+                    onChange={formik.handleChange}
+                    isInvalid={formik.touched.apellido && !!formik.errors.apellido}
+                    placeholder="Apellido del fiscal"
+                    />
+                    <Form.Control.Feedback type="invalid">{formik.errors.apellido}</Form.Control.Feedback>
+                </Col>
             )}
 
             {filtro === 'dni' && (
@@ -202,7 +226,7 @@ export const TableView = ({ user }: Props) => {
                     placeholder="Localidad del fiscal"
                     />
                     <Form.Control.Feedback type="invalid">{formik.errors.dni}</Form.Control.Feedback>
-            </>
+                </>
             )}
                 <Button
                 type="submit"
@@ -212,9 +236,9 @@ export const TableView = ({ user }: Props) => {
                 >
                    <img src={lupa} alt="Lupa" />
                 </Button>
-            </div>
+            </Col>
           </Form>
-        </div>
+        </Col>
         :
         null
     }
@@ -223,7 +247,7 @@ export const TableView = ({ user }: Props) => {
        
          {
             isMobileView ?
-            <div style={{ backgroundColor:'#fff', width: '100%',minHeight:'380px', height:!isMobileView ? '80%': '80%',maxHeight:altura,overflowX:'auto'}}>
+            <Col style={{ backgroundColor:'#fff', width: '100%',minHeight:'380px', height:!isMobileView ? '80%': '70%',maxHeight:altura,overflowX:'auto'}}>
             <Table striped bordered hover responsive >
                 <thead>
                     <tr className="">
@@ -248,9 +272,9 @@ export const TableView = ({ user }: Props) => {
                   }
                 </tbody>
             </Table>
-            </div>
+            </Col>
             :
-             <div style={{ backgroundColor:'#fff', width: '100%',minHeight:'380px', height:!isMobileView ? '50%': '80%',maxHeight:'300px',overflowX:'auto'}}>
+             <Col style={{ backgroundColor:'#fff', width: '100%',minHeight:'380px', height:!isMobileView ? '50%': '80%',maxHeight:'300px',overflowX:'auto'}}>
             <Table striped bordered hover responsive style={{maxHeight:'250px'}}>
                 <thead>
                 <tr>
@@ -269,25 +293,20 @@ export const TableView = ({ user }: Props) => {
                     <td>{row.localidad}</td>
                     <td>{row.dni}</td>
                     <td>
-                        <div className="d-flex  justify-center rounded-lg text-lg ms-2" role="group">
-                            {/*<!-- botón editar -->*/}
-                            <a href="{{ route('producto.edit', $producto->id) }}"
-                                className="btn btn-info">Editar</a>
-
-                            {/*<!-- botón borrar -->*/}
-
-                            <Button type="submit" className="btn btn-danger ms-2">Eliminar</Button>
-                        </div>
+                        <Col className="d-flex  justify-center rounded-lg text-lg ms-2" role="group">
+                            <Button className="btn bg-red" onClick={()=>{onEdit(row)}}>Editar</Button>
+                            <Button className="btn btn-danger ms-2">Eliminar</Button>
+                        </Col>
                     </td>   
                     </tr>
                     
                 ))}
                 </tbody>
           </Table>
-           </div>
+           </Col>
          }
        
-        <TablePagination rows={rows} cant={cant} setShownUsers={setShownUsers}/>
+        <TablePagination rows={rows} cant={cant} setCant={setCant} pedirUsuarios={pedirUsuarios} setShownUsers={setShownUsers}/>
       </Col>
 
       <Col

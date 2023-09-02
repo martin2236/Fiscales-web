@@ -34,6 +34,7 @@ export const TableView = ({ user }: Props) => {
   const [screenHeight, setScreenHeight] = useState(window.innerHeight);  
   const [isMobileView, setIsMobileView] = useState(false);
   const navigate = useNavigate();
+
     useEffect(() => {
         const handleResize = () => {
           setIsMobileView(window.innerWidth < 730); 
@@ -94,7 +95,6 @@ export const TableView = ({ user }: Props) => {
 
  let validationSchema;
   const onSubmit = (values: FormData, { resetForm }: any) => {
-    console.log(values);
     const { nombre,apellido, dni, localidad } = values;
     let query;
     if (nombre !== '') {
@@ -102,12 +102,12 @@ export const TableView = ({ user }: Props) => {
     }else if(apellido !== ''){
         query = `nombre?apellido=${apellido}`
     }else if(nombre !== '' && apellido !== ''){
-        query = `nombre?nombre=${nombre}&&apellido=${apellido}`
+        query = `nombre?nombre=${nombre}&apellido=${apellido}`
     }
     else if (dni !== '') {
       query = `dni?dni=${dni}`
     } else if (localidad !== '') {
-      query = `licalidad?localidad=${localidad}`
+      query = `localidad?localidad=${localidad}`
     }
     console.log(`${baseIp}/fiscales/${query}`)
     fetch(`${baseIp}/fiscales/${query}`, {
@@ -120,7 +120,7 @@ export const TableView = ({ user }: Props) => {
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
-          console.log(data);
+          setShownUsers(data.data)
           setRows(data.data);
         }
       })
@@ -149,6 +149,7 @@ export const TableView = ({ user }: Props) => {
   }
 
   const handleChange = (event: any) => {
+    console.log('este es el valor seleccionado',event.target.value)
     setFiltro(event.target.value);
   };
 
@@ -219,13 +220,13 @@ export const TableView = ({ user }: Props) => {
               <>
                 <Form.Control
                     type="text"
-                    name="dni"
-                    value={formik.values.dni}
+                    name="localidad"
+                    value={formik.values.localidad}
                     onChange={formik.handleChange}
-                    isInvalid={formik.touched.dni && !!formik.errors.dni}
+                    isInvalid={formik.touched.localidad && !!formik.errors.localidad}
                     placeholder="Localidad del fiscal"
                     />
-                    <Form.Control.Feedback type="invalid">{formik.errors.dni}</Form.Control.Feedback>
+                    <Form.Control.Feedback type="invalid">{formik.errors.localidad}</Form.Control.Feedback>
                 </>
             )}
                 <Button
@@ -258,9 +259,9 @@ export const TableView = ({ user }: Props) => {
                 </thead>
                 <tbody>
                   {
-                    shownUsers.map((user:User,index) => {
+                    shownUsers.map((user:User) => {
                         return (
-                            <tr key={index}>
+                            <tr key={user.id}>
                             <td className= {"border text-center"}>{user.id}</td>
                             <td className={"border text-center"} style={{ minWidth:150 }}>
                                 <UserRow user={user}/>

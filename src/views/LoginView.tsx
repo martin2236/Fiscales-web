@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { Formik, Field, ErrorMessage } from 'formik';
 import * as yup from 'yup';
 import mainImage from '../assets/mainImage.jpg';
 import { useNavigate } from 'react-router-dom';
 import { Form, Container, Row, Col, Button, Spinner } from 'react-bootstrap';
 import { baseIp } from '../config/conection';
+import { FiscalContext } from '../context/FiscalContext';
 
 interface FormData {
   email: string;
@@ -24,6 +25,8 @@ export const LoginView = () => {
     password: '',
   };
 
+  const {setUser} = useContext(FiscalContext)
+
   const onSubmit = (values: FormData, { resetForm }: any) => {
     setCargando(true);
     fetch(`${baseIp}/auth`, {
@@ -36,8 +39,9 @@ export const LoginView = () => {
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
+            console.log(data)
           setCargando(false);
-          return navigate('/home', { state: { data: data.data } });
+          setUser(data.data);
         }
       })
       .catch(err =>{

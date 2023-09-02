@@ -1,20 +1,11 @@
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import { LoginView } from './views/LoginView'; 
-import { HomeView } from './views/HomeView'; 
-import { EditFiscal } from './views/EditFiscal'; 
+import { AppRouter } from "./router/AppRouter"
 
-function App() {
- 
 
+export const App = () => {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<LoginView />} />
-        <Route path="/home" element={<HomeView />} />
-        <Route path="/edit" element={<EditFiscal/>} />
-      </Routes>
-    </BrowserRouter>
+    <>
+        <AppRouter/>
+    </>
   )
 }
 
-export default App

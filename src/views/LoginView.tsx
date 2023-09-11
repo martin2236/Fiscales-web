@@ -25,30 +25,17 @@ export const LoginView = () => {
     password: '',
   };
 
-  const {setUser} = useContext(FiscalContext)
+  const {user,login} = useContext(FiscalContext)
 
-  const onSubmit = (values: FormData, { resetForm }: any) => {
+  const onSubmit = async(values: FormData, { resetForm }: any) => {
+    console.log('haciendo login')
     setCargando(true);
-    fetch(`${baseIp}/auth`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(values),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success) {
-            console.log(data)
-          setCargando(false);
-          setUser(data.data);
-        }
-      })
-      .catch(err =>{
-        console.log(err);
-        setCargando(false);
-      })
-      .finally(() => resetForm());
+     await login(values.email,values.password)
+    if(user && user.id){
+      setCargando(false)
+    }
+    
+    resetForm()
   };
 
   return (

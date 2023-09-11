@@ -3,11 +3,11 @@ import { LoginView } from '../views/LoginView';
 
 
 export const AppRouter = () => {
-
+  const isAuthenticated = true;
   return (
     <>
       <Routes>
-        <Route path="/" element={<LoginView />} />
+       <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" /> : <LoginView />} />
         <Route path="/*" element={<LoginView/>}/>
       </Routes>
     </>

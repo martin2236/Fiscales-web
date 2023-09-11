@@ -1,6 +1,5 @@
 
 import { Navigate, Route, Routes } from "react-router-dom"
-import { LoginView } from "../views/LoginView"
 import { HomeView } from "../views/HomeView"
 import { EditFiscal } from "../views/EditFiscal"
 

@@ -7,7 +7,6 @@ import { baseIp } from '../config/conection';
 import { User } from './HomeView';
 import { Row,Col,Container } from 'react-bootstrap';
 import { CustomAlert } from '../components/CustomAlert';
-import Alert from 'react-bootstrap/Alert';
 
 interface Props {
   user: User;

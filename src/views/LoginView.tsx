@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Formik, Field, ErrorMessage } from 'formik';
 import * as yup from 'yup';
 import mainImage from '../assets/mainImage.jpg';
@@ -25,17 +25,19 @@ export const LoginView = () => {
     password: '',
   };
 
-  const {user,login} = useContext(FiscalContext)
+  const {user,login} = useContext(FiscalContext);
+
+  useEffect(()=>{
+    user && navigate('home')
+  },[user])
 
   const onSubmit = async(values: FormData, { resetForm }: any) => {
-    console.log('haciendo login')
     setCargando(true);
      await login(values.email,values.password)
-    if(user && user.id){
-      setCargando(false)
+    if(user){
+      setCargando(false);
     }
-    
-    resetForm()
+    resetForm();
   };
 
   return (
